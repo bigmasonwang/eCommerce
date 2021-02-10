@@ -5,6 +5,7 @@ const Rating = ({ value, text, color }) => {
   const renderStar = () => {
     return [1, 2, 3, 4, 5].map((index) => (
       <i
+        key={index}
         style={{ color }}
         className={
           value >= index
