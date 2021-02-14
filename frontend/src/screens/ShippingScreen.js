@@ -19,7 +19,7 @@ const ShippingScreen = ({ history }) => {
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(saveShippingAddress({ address, city, postalCode, country }));
-    history.push('./payment');
+    history.push('/payment');
   };
 
   return (
@@ -72,7 +72,7 @@ const ShippingScreen = ({ history }) => {
         </Form.Group>
 
         <Button type='submit' variant='primary'>
-          Submit
+          Continue
         </Button>
       </Form>
     </FormContainer>
