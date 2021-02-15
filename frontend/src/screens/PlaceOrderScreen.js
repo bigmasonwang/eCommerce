@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Message from '../components/Message';
 import CheckoutSteps from '../components/CheckoutSteps';
+import { createOrder } from '../actions/orderActions';
 
-const PlaceOrderScreen = () => {
+const PlaceOrderScreen = ({ history }) => {
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
 
   // Calculate price
@@ -17,8 +19,28 @@ const PlaceOrderScreen = () => {
   cart.taxPrice = Number((0.15 * cart.itemsPrice).toFixed(2));
   cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
 
-  const PlaceOrderHandler = () => {
-    console.log('order');
+  const orderCreate = useSelector((state) => state.orderCreate);
+  const { order, success, error } = orderCreate;
+
+  useEffect(() => {
+    if (success) {
+      history.push(`/order/${order._id}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, success]);
+
+  const placeOrderHandler = () => {
+    dispatch(
+      createOrder({
+        orderItems: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+        paymentMethod: cart.paymentMethod,
+        itemsPrice: cart.itemsPrice,
+        taxPrice: cart.taxPrice,
+        shippingPrice: cart.shippingPrice,
+        totalPrice: cart.totalPrice,
+      })
+    );
   };
 
   return (
@@ -32,7 +54,8 @@ const PlaceOrderScreen = () => {
               <p>
                 <strong>Address: </strong>
                 {cart.shippingAddress.address}, {cart.shippingAddress.city}{' '}
-                {cart.shippingAddress.postCode}, {cart.shippingAddress.country}
+                {cart.shippingAddress.postalCode},{' '}
+                {cart.shippingAddress.country}
               </p>
             </ListGroup.Item>
             <ListGroup.Item>
@@ -105,11 +128,14 @@ const PlaceOrderScreen = () => {
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>
+                {error && <Message variant='danger'>{error}</Message>}
+              </ListGroup.Item>
+              <ListGroup.Item>
                 <Button
-                  type='nutton'
+                  type='button'
                   className='btn-block'
                   disabled={cart.cartItems === 0}
-                  onClick={PlaceOrderHandler}
+                  onClick={placeOrderHandler}
                 >
                   Place Order
                 </Button>
